@@ -1,55 +1,49 @@
-package bankingAccounts;
+package bankingUser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 
-public class Accounts {
-    
+public class User {
+        
 	private Connection connection;
 	private Scanner scanner;
-	
-	
-	public Accounts(Connection connection, Scanner scanner) {
-		super();
+    
+	public User(Connection connection, Scanner scanner) {
 		this.connection = connection;
 		this.scanner = scanner;
 	}
 	
-	
 	public void register() {
 		scanner.nextLine();
 		System.out.println("Full Name: ");
-		String full_name = scanner.nextLine();
+        String full_name = scanner.nextLine();
 		System.out.println("Email: ");
 		String email = scanner.nextLine();
 		System.out.println("Password: ");
 		String password = scanner.nextLine();
-		
-		
 		if(user_exist(email)) {
-			System.out.println("User already Exists for this Email Address!!");
-			return ;
+			System.out.println("User Already Exists for this email address!!");
+			return;
 		}
 		
-		String register_query = "INSERT INTO User(full_name, email, password) VALUES(?, ?, ?)";
+		String register_query = "INSERT INTO User(full_name, email, password) VALUES (?, ?, ?)";
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(register_query);
 			preparedStatement.setString(1, full_name);
 			preparedStatement.setString(2, email);
 			preparedStatement.setString(3, password);
-			int affectRows = preparedStatement.executeUpdate();
-			if (affectRows > 0) {
-				System.out.println("Registration successfull !!!");
-			} else {
-				System.out.println("Regsitration Failed !!");
+			int affectedRows = preparedStatement.executeUpdate();
+			if (affectedRows > 0) {
+				System.out.println("Registration Successful");
+			}  else {
+				System.out.println("Registration Failed !");
 			}
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public String login() {
@@ -69,12 +63,26 @@ public class Accounts {
 			} else {
 				return null;
 			}
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+            e.printStackTrace();
 		}
 		return null;
-		
 	}
 	
-	
+	public boolean user_exist(String email) {
+		String query = "SELECT * FROM user WHERE email";
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, email);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if(resultSet.next()) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (SQLException e) {
+            e.printStackTrace();
+		}
+		return false;
+	}
 }
