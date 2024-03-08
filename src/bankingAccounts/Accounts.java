@@ -3,6 +3,8 @@ package bankingAccounts;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
 
 public class Accounts {
@@ -18,63 +20,91 @@ public class Accounts {
 	}
 	
 	
-	public void register() {
-		scanner.nextLine();
-		System.out.println("Full Name: ");
-		String full_name = scanner.nextLine();
-		System.out.println("Email: ");
-		String email = scanner.nextLine();
-		System.out.println("Password: ");
-		String password = scanner.nextLine();
-		
-		
-		if(user_exist(email)) {
-			System.out.println("User already Exists for this Email Address!!");
-			return ;
-		}
-		
-		String register_query = "INSERT INTO User(full_name, email, password) VALUES(?, ?, ?)";
-		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(register_query);
-			preparedStatement.setString(1, full_name);
-			preparedStatement.setString(2, email);
-			preparedStatement.setString(3, password);
-			int affectRows = preparedStatement.executeUpdate();
-			if (affectRows > 0) {
-				System.out.println("Registration successfull !!!");
-			} else {
-				System.out.println("Regsitration Failed !!");
+	public long open_account(String email) {
+		if(!account_exist(email)) {
+			String open_account_query = "INSERT INTO Accounts(account_number, full_name, email, balance, security_pin) VALUES(?, ?, ?, ?, ?)";
+			scanner.nextLine();
+			System.out.println("Enter Full Name");
+			String full_name = scanner.nextLine();
+			System.out.println("Enter the initial amount");
+			double balance = scanner.nextDouble();
+			scanner.nextLine();
+			System.out.println("Enter security pin");
+			String security_pin = scanner.nextLine();
+			try {
+				long account_number = generateAccountNumber();
+				PreparedStatement preparedStatement = connection.prepareStatement(open_account_query);
+				preparedStatement.setLong(1, account_number);
+				preparedStatement.setString(2, full_name);
+				preparedStatement.setString(3, email);
+				preparedStatement.setDouble(4, balance);
+				preparedStatement.setString(5, security_pin);
+				int rowsAffected = preparedStatement.executeUpdate();
+		        if (rowsAffected > 0) {
+		        	return account_number;
+		        }  else {
+		        	throw new RuntimeException("Account Creation Failed");
+		        }
+				
+				
+			} catch (SQLException e) {
+                 e.printStackTrace();
 			}
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
 		}
+		throw new RuntimeException("Account already exists");
+	}
+	
+	
+	
+	public long getAccount_number(String email) {
+		String query = "SELECT account_number from Accounts WHERE email = ?";
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setString(1, email);
+			ResultSet resultset = preparedStatement.executeQuery();
+			if(resultSet.next()) {
+				return resultSet.getLong("account_number");
+			}
+			
+		} catch (Exception e) {
+            e.printStackTrace();
+		}
+		
+		throw new RuntimeException("Account Number Doesn't Exist!");
 		
 	}
 	
-	public String login() {
-		scanner.nextLine();
-		System.out.println("Email: ");
-		String email = scanner.nextLine();
-		System.out.println("Password: ");
-		String password = scanner.nextLine();
-		String login_query = "SELECT * FROM User WHERE email = ? AND password = ?";
+	private long generateAccountNumber() {
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(login_query);
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery("SELECT account_number from Accounts ORDER BY account_number DESC LIMIT 1");
+			if (resultSet.next()) {
+				long last_account_number = resultSet.getLong("account_number");
+				return last_account_number + 1;
+			} else {
+				return 10000100;
+			}
+		} catch (SQLException e) {
+               e.printStackTrace();
+		}
+		return 10000100;
+	}
+	
+	public boolean account_exist(String email) {
+		String query = "SELECT account_number from Accounts WHERE email = ?";
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, email);
-			preparedStatement.setString(2, password);
 			ResultSet resultSet = preparedStatement.executeQuery();
 			if(resultSet.next()) {
-				return email;
+				return true;
 			} else {
-				return null;
+				return false;
 			}
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+            e.printStackTrace();
 		}
-		return null;
 		
+		return false;
 	}
-	
-	
 }
