@@ -2,7 +2,12 @@ package bankingSystem;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Scanner;
+
+import bankingAccounts.Accounts;
+import bankingManageAccount.AccountManager;
+import bankingUser.User;
 
 public class BankingApp {
      
@@ -12,8 +17,13 @@ public class BankingApp {
 	
 	private static final String password = "vay#45vdra##" ;
 	
-	public static void main(String[] args) {
-        
+	public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+           System.out.println(e.getMessage());
+		}
+		
         try {
         	 Connection connection = DriverManager.getConnection(url, username, password);
              Scanner scanner = new Scanner(System.in);
@@ -30,10 +40,79 @@ public class BankingApp {
             	 System.out.println("1. Register");
             	 System.out.println("2. Login");
             	 System.out.println("3. Exit");
+            	 System.out.println("Enter your choice");
+            	 int choice1 = scanner.nextInt();
+            	 switch (choice1) {
+            	    case 1: 
+            	    	user.register();
+            	    	break;
+            	    case 2: 
+            	    	email = user.login();
+            	    	if(email!=null) {
+            	    		System.out.println();
+            	    		System.out.println("User logged in !");
+            	    		if(!accounts.account_exist(email)) {
+            	    			System.out.println();
+            	    			System.out.println("1. Open a new account");
+            	    			System.out.println("2. Exist");
+            	    			if(scanner.nextInt() == 1) {
+            	    				account_number = accounts.open_account(email);
+            	    				System.out.println("Account created successfully");
+            	    				System.out.println("Your Account number is:" + account_number );
+            	    				
+            	    			} else {
+            	    				break;
+            	    			}
+            	    			
+            	    		}
+            	    		account_number = accounts.getAccount_number(email);
+            	    		int choice2 = 0;
+            	    		while (choice2 != 5) {
+            	    			System.out.println();
+            	    			System.out.println("1. Debit Money");
+            	    			System.out.println("2. Credit money");
+            	    			System.out.println("3. Transfer Money");
+            	    			System.out.println("4. Check Balance");
+            	    			System.out.println("5. Log out");
+            	    			System.out.println("Enter your choice");
+            	    			choice2 = scanner.nextInt();
+            	    			switch (choice2) {
+            	    			case 1: 
+            	    				accountManager.debit_money(account_number);
+            	    				break;
+            	    			case 2:
+            	    			    accountManager.credit_money(account_number);
+            	    			    break;
+            	    			case 3:
+            	    				accountManager.transfer_money(account_number);
+            	    				break;
+            	    			case 4:
+            	    				accountManager.get_balance(account_number);
+            	    				break;
+            	    			default:
+            	    				System.out.println("Enter valid choice");
+            	    				break;
+            	    				
+            	    			}
+            	    		}
+            	    	} else {
+            	    		System.out.println("Incorrect email or password ");
+            	    		
+            	    	}
+            	    	
+            	    case 3:
+            	    	System.out.println("THANK YOU FOR USING BANK SYSTEM");
+            	    	System.out.println("Exiting System!");
+            	    	return;
+            	    default: 
+            	    	System.out.println("Enter Valid Choice");
+            	    	break;
+            	    	   
+            	 } 	
             	 
              }
-		} catch (Exception e) {
-			// TODO: handle exception
+		} catch (SQLException e) {
+             e.printStackTrace();
 		}
         
 	}
