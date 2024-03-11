@@ -101,7 +101,7 @@ public class BankingApp {
             	    	}
             	    	
             	    case 3:
-            	    	System.out.println("THANK YOU FOR USING BANK SYSTEM");
+            	    	System.out.println("THANK YOU FOR USING BANKING SYSTEM !!! ");
             	    	System.out.println("Exiting System!");
             	    	return;
             	    default: 
