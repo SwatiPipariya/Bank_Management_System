@@ -87,7 +87,7 @@ public class BankingApp {
             	    				accountManager.transfer_money(account_number);
             	    				break;
             	    			case 4:
-            	    				accountManager.get_balance(account_number);
+            	    				accountManager.getBalance(account_number);
             	    				break;
             	    			default:
             	    				System.out.println("Enter valid choice");

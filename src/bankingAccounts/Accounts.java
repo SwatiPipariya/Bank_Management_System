@@ -62,8 +62,8 @@ public class Accounts {
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, email);
 			ResultSet resultset = preparedStatement.executeQuery();
-			if(resultSet.next()) {
-				return resultSet.getLong("account_number");
+			if(resultset.next()) {
+				return resultset.getLong("account_number");
 			}
 			
 		} catch (Exception e) {

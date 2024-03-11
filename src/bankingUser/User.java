@@ -70,11 +70,12 @@ public class User {
 	}
 	
 	public boolean user_exist(String email) {
-		String query = "SELECT * FROM user WHERE email";
+		String query = "SELECT * FROM user WHERE email = ?";
 		try {
 			PreparedStatement preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setString(1, email);
 			ResultSet resultSet = preparedStatement.executeQuery();
+			
 			if(resultSet.next()) {
 				return true;
 			} else {
